@@ -51,7 +51,7 @@ func part1(input string) int {
 	scanner := bufio.NewScanner(strings.NewReader(input))
 	var first, last int32
 	for scanner.Scan() {
-		first, last = -1, -1
+		first = -1
 		for _, c := range scanner.Text() {
 			if unicode.IsDigit(c) {
 				if first == -1 {
