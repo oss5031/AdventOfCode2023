@@ -21,29 +21,38 @@ var (
 		"8": 8, "eight": 8,
 		"9": 9, "nine": 9,
 	}
-
-	dict  *Dict
-	input string
+	dict *Dict
 )
 
 func init() {
-	data, err := os.ReadFile("resources/day1.txt")
-	if err != nil {
-		panic(err)
-	}
-	input = string(data)
-
 	dict = New()
 	for k, v := range digits {
 		if val := dict.Insert(k, v); val != -1 {
-			panic("duplicated value")
+			panic("duplicated entry")
 		}
 	}
 }
 
 func main() {
-	fmt.Println(part1(input))
-	fmt.Println(part2(input))
+	if len(os.Args) < 3 {
+		fmt.Printf("usage: %s <path> <1|2>", os.Args[0])
+		os.Exit(1)
+	}
+
+	data, err := os.ReadFile(os.Args[1])
+	if err != nil {
+		panic(err)
+	}
+
+	switch os.Args[2] {
+	case "1":
+		fmt.Println(part1(string(data)))
+	case "2":
+		fmt.Println(part2(string(data)))
+	default:
+		fmt.Printf("usage: %s <path> <1|2>", os.Args[0])
+		os.Exit(1)
+	}
 }
 
 func part1(input string) int {
@@ -101,53 +110,43 @@ func part2(input string) int {
 }
 
 func New() *Dict {
-	return &Dict{Key: -1, Val: -1}
+	return &Dict{value: -1, children: make(map[int32]*Dict)}
 }
 
 // Dict is definitely not a tree
 type Dict struct {
-	Key      int32
-	Val      int
-	Children []*Dict // TODO: Should it be a map?
+	value    int
+	children map[int32]*Dict
 }
 
 func (d *Dict) Insert(key string, val int) int {
 	tr := &d
 	for _, c := range key {
-		ch := (*tr).child(c)
-		if ch == nil {
-			ch = &Dict{Key: c, Val: -1}
-			(*tr).Children = append((*tr).Children, ch)
+		ch, has := (*tr).children[c]
+		if !has {
+			ch = &Dict{value: -1, children: make(map[int32]*Dict)}
+			(*tr).children[c] = ch
 		}
 		tr = &ch
 	}
-	old := (*tr).Val
-	(*tr).Val = val
+	old := (*tr).value
+	(*tr).value = val
 	return old
 }
 
 func (d *Dict) Search(s string) (string, int, bool) {
-	var match string
+	var key string
 	tr := &d
 	for _, c := range s {
-		ch := (*tr).child(c)
-		if ch == nil {
+		ch, has := (*tr).children[c]
+		if !has {
 			return "", -1, false
 		}
 		tr = &ch
-		match += string(c)
-		if (*tr).Val != -1 {
-			return match, (*tr).Val, true
+		key += string(c)
+		if (*tr).value != -1 {
+			return key, (*tr).value, true
 		}
 	}
 	return "", -1, false
-}
-
-func (d *Dict) child(c int32) *Dict {
-	for _, ch := range d.Children {
-		if ch.Key == c {
-			return ch
-		}
-	}
-	return nil
 }
