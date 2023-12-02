@@ -21,13 +21,13 @@ var (
 		"8": 8, "eight": 8,
 		"9": 9, "nine": 9,
 	}
-	dict *Dict
+	trie *Trie
 )
 
 func init() {
-	dict = New()
+	trie = New()
 	for k, v := range digits {
-		if val := dict.Insert(k, v); val != -1 {
+		if val := trie.Insert(k, v); val != -1 {
 			panic("duplicated entry")
 		}
 	}
@@ -86,15 +86,13 @@ func part2(input string) int {
 	for scanner.Scan() {
 		ln := scanner.Text()
 		for i := 0; i < len(ln); i++ {
-			_, val, has := dict.Search(ln[i:])
-			if has {
+			if val, has := trie.Search(ln[i:]); has {
 				first = val
 				break
 			}
 		}
 		for i := len(ln); i >= 0; i-- {
-			_, val, has := dict.Search(ln[i:])
-			if has {
+			if val, has := trie.Search(ln[i:]); has {
 				last = val
 				break
 			}
@@ -109,22 +107,21 @@ func part2(input string) int {
 	return res
 }
 
-func New() *Dict {
-	return &Dict{value: -1, children: make(map[int32]*Dict)}
+func New() *Trie {
+	return &Trie{value: -1, children: make(map[int32]*Trie)}
 }
 
-// Dict is definitely not a tree
-type Dict struct {
+type Trie struct {
 	value    int
-	children map[int32]*Dict
+	children map[int32]*Trie
 }
 
-func (d *Dict) Insert(key string, val int) int {
-	tr := &d
+func (t *Trie) Insert(key string, val int) int {
+	tr := &t
 	for _, c := range key {
 		ch, has := (*tr).children[c]
 		if !has {
-			ch = &Dict{value: -1, children: make(map[int32]*Dict)}
+			ch = &Trie{value: -1, children: make(map[int32]*Trie)}
 			(*tr).children[c] = ch
 		}
 		tr = &ch
@@ -134,19 +131,17 @@ func (d *Dict) Insert(key string, val int) int {
 	return old
 }
 
-func (d *Dict) Search(s string) (string, int, bool) {
-	var key string
-	tr := &d
+func (t *Trie) Search(s string) (int, bool) {
+	tr := &t
 	for _, c := range s {
 		ch, has := (*tr).children[c]
 		if !has {
-			return "", -1, false
+			return -1, false
 		}
 		tr = &ch
-		key += string(c)
 		if (*tr).value != -1 {
-			return key, (*tr).value, true
+			return (*tr).value, true
 		}
 	}
-	return "", -1, false
+	return -1, false
 }
