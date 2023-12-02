@@ -46,20 +46,12 @@ NextGame:
 func part2(input string) int {
 	var res int
 	for _, ln := range strings.Split(input, "\n") {
-		var minReds, minGreens, minBlues int
+		var reds, greens, blues int
 		for _, handStr := range strings.Split(strings.Split(ln, ":")[1], ";") {
 			hand := parseHand(handStr)
-			if minReds < hand.Reds {
-				minReds = hand.Reds
-			}
-			if minGreens < hand.Greens {
-				minGreens = hand.Greens
-			}
-			if minBlues < hand.Blues {
-				minBlues = hand.Blues
-			}
+			reds, greens, blues = max(reds, hand.Reds), max(greens, hand.Greens), max(blues, hand.Blues)
 		}
-		res += minReds * minGreens * minBlues
+		res += reds * greens * blues
 	}
 	return res
 }
@@ -76,9 +68,9 @@ var (
 func parseHand(s string) *Hand {
 	h := &Hand{}
 	for _, elem := range strings.Split(s, ",") {
-		e := strings.Split(strings.TrimSpace(elem), " ")
-		val, _ := strconv.Atoi(e[0])
-		handSetter[e[1]](h, val)
+		f := strings.Fields(elem)
+		val, _ := strconv.Atoi(f[0])
+		handSetter[f[1]](h, val)
 	}
 	return h
 }
