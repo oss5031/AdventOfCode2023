@@ -47,23 +47,17 @@ func part2(input string) int {
 	lines := strings.Split(input, "\n")
 	symbols, numbers := parse(lines)
 
-	gears := make(map[position][]int)
+	gears := make(map[position]int)
 	for p, size := range numbers {
 		for _, n := range neighbours(p.x, p.y, size, &symbols) {
 			if lines[n.y][n.x] == '*' {
 				val, _ := strconv.Atoi(lines[p.y][p.x : p.x+size])
 				if _, has := gears[n]; !has {
-					gears[n] = []int{val}
+					gears[n] = val
 					continue
 				}
-				gears[n] = append(gears[n], val)
+				res += gears[n] * val
 			}
-		}
-	}
-
-	for _, vals := range gears {
-		if len(vals) == 2 {
-			res += vals[0] * vals[1]
 		}
 	}
 
