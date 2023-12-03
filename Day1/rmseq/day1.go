@@ -35,7 +35,7 @@ func init() {
 
 func main() {
 	if len(os.Args) < 3 {
-		fmt.Printf("usage: %s <path> <1|2>", os.Args[0])
+		fmt.Printf("usage: %s <path> <part>\n", os.Args[0])
 		os.Exit(1)
 	}
 
@@ -50,7 +50,7 @@ func main() {
 	case "2":
 		fmt.Println(part2(string(data)))
 	default:
-		fmt.Printf("usage: %s <path> <1|2>", os.Args[0])
+		fmt.Printf("usage: %s <path> <part>\n", os.Args[0])
 		os.Exit(1)
 	}
 }

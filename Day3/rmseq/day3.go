@@ -5,7 +5,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"unicode"
 )
 
 func main() {
@@ -50,7 +49,6 @@ func part2(input string) int {
 
 	gears := make(map[position][]int)
 	for p, size := range numbers {
-		neighbours(p.x, p.y, size, &symbols)
 		for _, n := range neighbours(p.x, p.y, size, &symbols) {
 			if lines[n.y][n.x] == '*' {
 				val, _ := strconv.Atoi(lines[p.y][p.x : p.x+size])
@@ -62,26 +60,28 @@ func part2(input string) int {
 			}
 		}
 	}
+
 	for _, vals := range gears {
 		if len(vals) == 2 {
 			res += vals[0] * vals[1]
 		}
 	}
+
 	return res
 }
 
-func neighbours(x, y, size int, world *map[position]int) []position {
+func neighbours(x, y, size int, symbols *map[position]int) []position {
 	var neighs []position
 	for _, i := range []int{-1, size} {
 		pos := position{x + i, y}
-		if _, has := (*world)[pos]; has {
+		if _, has := (*symbols)[pos]; has {
 			neighs = append(neighs, pos)
 		}
 	}
 	for _, j := range []int{-1, 1} {
 		for i := size; i >= -1; i-- {
 			pos := position{x + i, y + j}
-			if _, has := (*world)[pos]; has {
+			if _, has := (*symbols)[pos]; has {
 				neighs = append(neighs, pos)
 			}
 		}
@@ -89,10 +89,10 @@ func neighbours(x, y, size int, world *map[position]int) []position {
 	return neighs
 }
 
-func hasNeighbours(x, y, size int, world *map[position]int) bool {
+func hasNeighbours(x, y, size int, symbols *map[position]int) bool {
 	hasXNeighbours := func() bool {
 		for _, i := range []int{-1, size} {
-			if _, has := (*world)[position{x + i, y}]; has {
+			if _, has := (*symbols)[position{x + i, y}]; has {
 				return true
 			}
 		}
@@ -101,7 +101,7 @@ func hasNeighbours(x, y, size int, world *map[position]int) bool {
 	hasYNeighbours := func() bool {
 		for _, j := range []int{-1, 1} {
 			for i := size; i >= -1; i-- {
-				if _, has := (*world)[position{x + i, y + j}]; has {
+				if _, has := (*symbols)[position{x + i, y + j}]; has {
 					return true
 				}
 			}
@@ -120,7 +120,7 @@ func parse(lines []string) (symbols map[position]int, numbers map[position]int) 
 			}
 			p := position{j, i}
 			var size int
-			for j+size < len(ln) && unicode.IsDigit(rune(ln[j+size])) {
+			for j+size < len(ln) && ('0' <= ln[j+size] && ln[j+size] <= '9') {
 				size++
 			}
 			if size != 0 {
