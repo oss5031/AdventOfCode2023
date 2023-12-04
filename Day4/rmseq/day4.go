@@ -40,7 +40,7 @@ func part1(input string) int {
 
 func part2(input string) int {
 	lns := strings.Split(input, "\n")
-	cards, total := make(map[int]int), 0 // Map instead of array to reduce space complexity
+	cards, total := make([]int, len(lns)), 0
 	for i := 0; i < len(lns); i++ {
 		cards[i]++
 		total += cards[i]
