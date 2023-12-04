@@ -42,11 +42,11 @@ func part2(input string) int {
 	lns := strings.Split(input, "\n")
 	cards, total := make([]int, len(lns)), 0
 	for i := 0; i < len(lns); i++ {
-		cards[i]++ // Original card
-		for j := matches(fields(lns[i])); j > 0; j-- {
+		cards[i]++
+		total += cards[i]
+		for j := 1; j <= matches(fields(lns[i])); j++ {
 			cards[i+j] += cards[i]
 		}
-		total += cards[i]
 	}
 	return total
 }
