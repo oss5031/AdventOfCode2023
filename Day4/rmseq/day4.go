@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strings"
@@ -12,25 +13,32 @@ func main() {
 		os.Exit(1)
 	}
 
-	data, err := os.ReadFile(os.Args[1])
+	file, err := os.Open(os.Args[1])
 	if err != nil {
 		panic(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var lines []string
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
 	}
 
 	switch os.Args[2] {
 	case "1":
-		fmt.Println(part1(string(data)))
+		fmt.Println(part1(lines))
 	case "2":
-		fmt.Println(part2(string(data)))
+		fmt.Println(part2(lines))
 	default:
 		fmt.Printf("usage: %s <path> <part>\n", os.Args[0])
 		os.Exit(1)
 	}
 }
 
-func part1(input string) int {
+func part1(lines []string) int {
 	var res int
-	for _, ln := range strings.Split(input, "\n") {
+	for _, ln := range lines {
 		if m := matches(fields(ln)); m >= 1 {
 			res += m << (m - 1)
 		}
@@ -38,13 +46,12 @@ func part1(input string) int {
 	return res
 }
 
-func part2(input string) int {
-	lns := strings.Split(input, "\n")
-	cards, total := make([]int, len(lns)), 0
-	for i := 0; i < len(lns); i++ {
+func part2(lines []string) int {
+	cards, total := make([]int, len(lines)), 0
+	for i := 0; i < len(lines); i++ {
 		cards[i]++
 		total += cards[i]
-		for j := 1; j <= matches(fields(lns[i])); j++ {
+		for j := 1; j <= matches(fields(lines[i])); j++ {
 			cards[i+j] += cards[i]
 		}
 	}
@@ -52,8 +59,9 @@ func part2(input string) int {
 }
 
 func fields(ln string) ([]string, []string) {
-	f := strings.Split(strings.Split(ln, ":")[1], "|")
-	return strings.Fields(f[0]), strings.Fields(f[1])
+	ln = ln[strings.Index(ln, ":")+1:]
+	sp := strings.Index(ln, "|")
+	return strings.Fields(ln[:sp]), strings.Fields(ln[sp:])
 }
 
 func matches(x, y []string) int {
